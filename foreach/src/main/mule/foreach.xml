@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6fad1b3f-209e-4ab5-8008-a5ebf7e3cf0d" >
+		<http:listener-connection host="0.0.0.0" port="8087" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="df1a5cd3-eb8d-4fe6-8a34-72d6e50ac151" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Devananda@12" database="bhagyadb" />
+	</db:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="fa4013aa-114c-44b2-bc87-1f5e4a105b92" />
+	<file:config name="File_Config1" doc:name="File Config" doc:id="03ac143a-0bbe-4cdb-8478-b8258db7061b" />
+	<flow name="foreachFlow" doc:id="0811d050-872b-48bd-9ea8-47e4819c1374" >
+		<http:listener doc:name="Listener" doc:id="d9a23b85-786b-47b8-8c93-a8ec64ce45a4" config-ref="HTTP_Listener_config" path="foreach"/>
+		<logger level="INFO" doc:name="start" doc:id="494c66d1-44c5-4bee-a064-45082bedb7b2" message="start"/>
+		<file:read doc:name="Read" doc:id="307e2ac2-b7e3-4abe-ac16-d9236fe4bc65" config-ref="File_Config1" path="C:\Users\bhagy\OneDrive\Documents\read\student.txt"/>
+		<foreach doc:name="For Each" doc:id="4853199c-33ee-4db9-8fe7-0cf8cd467ac6" collection="#[payload]">
+			<logger level="INFO" doc:name="Logger" doc:id="69d31f9a-ab8d-4cb0-8578-e168dd25be03" message="#[payload]" />
+			<db:insert doc:name="Insert" doc:id="3bc2e336-5ca6-4cb9-87ff-39776264b980" config-ref="Database_Config">
+				<db:sql><![CDATA[INSERT INTO student (id, name, number, lname)
+VALUES (:id, :name, :number, :lname);
+]]></db:sql>
+				<db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
+			</db:insert>
+		</foreach>
+		<logger level="INFO" doc:name="end" doc:id="6767e692-608b-4d05-bb8b-a8dcd25747c0" message="end" />
+	</flow>
+</mule>
